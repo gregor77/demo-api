@@ -124,33 +124,31 @@ class ProjectServiceTest {
     @Nested
     class updateProjects {
         @Test
-        @DisplayName("when not exist project then throw notFoundExceptipon")
-        void errorCase() {
-            given(mockProjectRepository.findById(1L)).willReturn(Optional.empty());
-
-            NotFoundException exception = assertThrows(NotFoundException.class,
+        @DisplayName("when update not existed projects, then throw NotFoundException")
+        public void errorCase() {
+            NotFoundException notFoundException = assertThrows(
+                    NotFoundException.class,
                     () -> subject.updateProjects(Lists.newArrayList(
                             Project.builder().id(1L).name("not-found").build()
-                    )));
+                    ))
+            );
 
-            assertThat(exception.getMessage()).isEqualTo("Project is not found. id=1");
+            assertThat(notFoundException.getMessage())
+                    .isEqualTo("Project is not found. id=1");
         }
 
         @Test
-        @DisplayName("when update valid projects then update valid projects")
+        @DisplayName("when update valid projects, then update multiple projects")
         public void normalCase() {
             given(mockProjectRepository.findById(FIRST_PROJECT_ID)).willReturn(Optional.ofNullable(firstProject));
             given(mockProjectRepository.findById(SECOND_PROJECT_ID)).willReturn(Optional.ofNullable(secondProject));
 
-            subject.updateProjects(Lists.newArrayList(
-                    firstProject,
-                    secondProject
-            ));
+            subject.updateProjects(Lists.newArrayList(firstProject, secondProject));
 
-            then(mockProjectRepository).should(times(2)).save(projectCaptor.capture());
-            assertThat(projectCaptor.getAllValues())
-                .contains(firstProject, secondProject);
+            then(mockProjectRepository).should(times(2))
+                    .save(projectCaptor.capture());
+
+            assertThat(projectCaptor.getAllValues()).contains(firstProject, secondProject);
         }
     }
-
 }

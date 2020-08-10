@@ -37,12 +37,11 @@ public class ProjectService {
                 .collect(Collectors.toList());
     }
 
-    public Project updateProject(Project project) {
+    private Project updateProject(Project project) {
         Optional<Project> optionalProject = projectRepository.findById(project.getId());
         if (!optionalProject.isPresent()) {
             throw new NotFoundException("Project is not found. id=" + project.getId());
         }
-
         return projectRepository.save(optionalProject.get());
     }
 }
