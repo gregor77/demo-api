@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.rhyno.demoapi.project.model.Project;
 import com.rhyno.demoapi.session.SessionContextHolder;
 import com.rhyno.demoapi.session.UserSession;
+import org.assertj.core.util.Lists;
 import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
@@ -12,11 +13,12 @@ import org.springframework.http.MediaType;
 import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.test.web.servlet.MockMvc;
 
+import java.util.List;
+
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.BDDMockito.then;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @WebMvcTest(ProjectController.class)
@@ -31,6 +33,24 @@ class ProjectControllerTest {
 
     @MockBean
     private ProjectService mockProjectService;
+
+    private Project firstProject;
+    private Project secondProject;
+
+    @BeforeEach
+    void setUp() {
+        firstProject = Project.builder()
+                .id(1L)
+                .name("first")
+                .description("first project")
+                .build();
+
+        secondProject = Project.builder()
+                .id(2L)
+                .name("second")
+                .description("second project")
+                .build();
+    }
 
     @Nested
     class getProject {
@@ -70,21 +90,35 @@ class ProjectControllerTest {
         @Test
         @DisplayName("then a project with tenantId from session")
         public void normalCase() throws Exception {
-            Project project = Project.builder()
-                    .name("any-name")
-                    .description("any-description")
-                    .build();
-
-            String jsonProject = objectMapper.writeValueAsString(project);
+            String jsonFirstProject = objectMapper.writeValueAsString(firstProject);
 
             mockMvc.perform(post("/api/v1/projects")
                     .contentType(MediaType.APPLICATION_JSON_VALUE)
-                    .content(jsonProject))
+                    .content(jsonFirstProject))
                     .andExpect(status().isCreated())
                     .andReturn()
                     .getResponse();
 
-            then(mockProjectService).should().createProject(ANY_TENANT, project);
+            then(mockProjectService).should().createProject(ANY_TENANT, firstProject);
+        }
+    }
+
+    @Nested
+    class updateProjects {
+        @Test
+        @DisplayName("then update multiple project")
+        public void normalCase() throws Exception {
+            List<Project> projects = Lists.newArrayList(firstProject, secondProject);
+            String jsonProjects = objectMapper.writeValueAsString(projects);
+
+            mockMvc.perform(put("/api/v1/projects")
+                    .contentType(MediaType.APPLICATION_JSON_VALUE)
+                    .content(jsonProjects))
+                    .andExpect(status().isOk())
+                    .andReturn()
+                    .getResponse();
+
+            then(mockProjectService).should().updateProjects(projects);
         }
     }
 }

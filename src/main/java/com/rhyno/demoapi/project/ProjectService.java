@@ -5,6 +5,10 @@ import com.rhyno.demoapi.exception.model.NotFoundException;
 import com.rhyno.demoapi.project.model.Project;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collectors;
+
 @Service
 public class ProjectService {
     private final ProjectRepository projectRepository;
@@ -25,5 +29,20 @@ public class ProjectService {
 
         project.setTenantId(tenantId);
         projectRepository.save(project);
+    }
+
+    public List<Project> updateProjects(List<Project> projects) {
+        return projects.stream()
+                .map(this::updateProject)
+                .collect(Collectors.toList());
+    }
+
+    public Project updateProject(Project project) {
+        Optional<Project> optionalProject = projectRepository.findById(project.getId());
+        if (!optionalProject.isPresent()) {
+            throw new NotFoundException("Project is not found. id=" + project.getId());
+        }
+
+        return projectRepository.save(optionalProject.get());
     }
 }

@@ -5,6 +5,8 @@ import com.rhyno.demoapi.session.SessionContextHolder;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @RestController
 @RequestMapping("/api/v1/projects")
 public class ProjectController {
@@ -26,6 +28,11 @@ public class ProjectController {
         projectService.createProject(tenantId, project);
 
         return project;
+    }
+
+    @PutMapping
+    public List<Project> updateProjects(@RequestBody List<Project> projects) {
+        return projectService.updateProjects(projects);
     }
 }
 
