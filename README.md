@@ -9,4 +9,4 @@ spring boot api 데모 프로젝트용으로 생성
 * gradle
 
 ## Api
-* /api/v1/projects : 프로젝트 정보 조회
+* [H2 TCP 설정](http://homoefficio.github.io/2019/10/09/IntelliJ에서-H2-연결하고-JPA-Console-사용하기/)

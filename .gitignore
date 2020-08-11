@@ -32,3 +32,8 @@ out/
 
 ### VS Code ###
 .vscode/
+
+
+### Eclipse ###
+.metadata
+bin
